@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pymongo[srv]
+python-dotenv
+email-validator
+jinja2
+bcrypt
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+kafka-python
+PyJWT==2.8.0
+requests
+httpx>=0.25.0

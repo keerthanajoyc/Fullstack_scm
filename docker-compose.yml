@@ -1,0 +1,117 @@
+version: "3.9"
+
+services:
+
+  # ---------------------------------------------------------
+  # Kafka — KRaft Mode (No ZooKeeper)
+  # ---------------------------------------------------------
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29093"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:9092,CONTROLLER://kafka:29093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+      KAFKA_CLUSTER_ID: "a159S-dnSraikSoxeAJaEg"
+      # Replication Settings
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # Performance Tuning
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - fullstack_net
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server kafka:9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------
+  # FastAPI Backend
+  # ---------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: app
+    env_file:
+      - .env
+    environment:
+      KAFKA_BROKER: kafka:9092
+      RAW_TOPIC: device_streams
+      MONGO_URL: ${MONGO_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      EMAIL_SENDER: ${EMAIL_SENDER}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY}
+      RECAPTCHA_SECRET_KEY: ${RECAPTCHA_SECRET_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+    ports:
+      - "8000:8000"
+    networks:
+      - fullstack_net
+    restart: always
+    depends_on:
+      - kafka
+
+  # ---------------------------------------------------------
+  # Kafka Producer Worker
+  # ---------------------------------------------------------
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    container_name: producer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+      RAW_TOPIC: device_streams
+    networks:
+      - fullstack_net
+    restart: always
+
+  # ---------------------------------------------------------
+  # Kafka Consumer Worker
+  # ---------------------------------------------------------
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    container_name: consumer
+    depends_on:
+      - kafka
+    env_file:
+      - .env
+    environment:
+      KAFKA_BROKER: kafka:9092
+      RAW_TOPIC: device_streams
+      MONGO_URL: ${MONGO_URL}
+    networks:
+      - fullstack_net
+    restart: always
+
+# ---------------------------------------------------------
+# NETWORK & VOLUME CONFIG
+# ---------------------------------------------------------
+networks:
+  fullstack_net:
+    driver: bridge
+
+volumes:
+  kafka_data:

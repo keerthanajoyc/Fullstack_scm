@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}Track Shipment — SCMLite{% endblock %}
+{% block content %}
+
+<div class="glass-container tracking-wrapper mt-4 mb-5 px-4 px-md-5 py-5 w-100">
+
+  <div class="text-center mb-4">
+    <h2 class="fw-bold" style="color:var(--scm-primary);">Track Your Shipment</h2>
+    <p style="color:var(--scm-secondary); font-size:.92rem;">
+      Track delivery progress & monitor live sensor data
+    </p>
+    
+    <form method="POST" class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+      <input type="text" name="shipment_id"
+            class="form-control search-input"
+            placeholder="Enter Shipment ID e.g. S1007"
+            required>
+      <button class="submit-btn px-4 py-2">Track</button>
+    </form>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger text-center fw-semibold">{{ error }}</div>
+  {% endif %}
+
+  {% if result %}
+  <hr class="divider-line my-4">
+
+  <div class="row g-4 justify-content-center">
+
+    <!-- Shipment Details -->
+    <div class="col-md-6">
+      <h5 class="card-title-section">Shipment Details</h5>
+      <div class="info-box">
+        <p><b>ID:</b> {{ result.shipment_id }}</p>
+        <p><b>Sender:</b> {{ result.sender_name }} ({{ result.sender_email }})</p>
+        <p><b>Receiver:</b> {{ result.receiver_name }} ({{ result.receiver_email }})</p>
+        <p><b>Origin:</b> {{ result.initial_location }}</p>
+        <p><b>Destination:</b> {{ result.destination }}</p>
+        <p><b>Current:</b> {{ result.current_location }}</p>
+        <p><b>Weight:</b> {{ result.weight }} kg</p>
+        <p><b>Status:</b> <span class="badge status-badge">{{ result.status }}</span></p>
+        <p><b>Updated:</b> {{ result.last_updated }}</p>
+      </div>
+    </div>
+
+    <!-- Live IoT Data -->
+    <div class="col-md-6">
+      <h5 class="card-title-section">Live Sensor Data</h5>
+
+      {% if last_iot %}
+      <div class="info-box">
+        <p><b>Device:</b> {{ last_iot.Device_ID }}</p>
+        <p><b>Temperature:</b> {{ last_iot.Temperature }}°C</p>
+        <p><b>Humidity:</b> {{ last_iot.Humidity }}%</p>
+        <p><b>Battery:</b> {{ last_iot.Battery_Level }}%</p>
+        <p><b>Route:</b> {{ last_iot.Route_From }} → {{ last_iot.Route_To }}</p>
+        <p><small class="text-muted">{{ last_iot.Timestamp }}</small></p>
+      </div>
+      {% else %}
+      <p class="text-muted text-center">No live data available.</p>
+      {% endif %}
+    </div>
+
+    <!-- Movement History Table -->
+    <div class="col-12 mt-3">
+      <h5 class="card-title-section">Shipment Movement History</h5>
+      
+      {% if history %}
+      <div class="table-responsive mt-3">
+        <table class="table text-center align-middle table-borderless history-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Temp °C</th>
+              <th>Humidity %</th>
+              <th>Battery %</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for h in history %}
+            <tr>
+              <td>{{ h.ts }}</td>
+              <td>{{ h.from }}</td>
+              <td>{{ h.to }}</td>
+              <td>{{ h.iot.Temperature if h.iot else "-" }}</td>
+              <td>{{ h.iot.Humidity if h.iot else "-" }}</td>
+              <td>{{ h.iot.Battery_Level if h.iot else "-" }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center">📭 No tracking history found.</p>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endif %}
+</div>
+
+
+<style>
+  /* Main unified card — more compact */
+  .tracking-wrapper {
+    background: rgba(255,255,255,0.40);
+    border-radius: 24px;
+    border: 1px solid rgba(90,70,54,0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    padding: 35px 45px !important;
+    box-shadow: 0 12px 38px rgba(90,70,54,0.12);
+    margin-top: 20px;
+    max-width: 1150px;
+  }
+  
+  /* Reduce spacing top part */
+  .text-center.mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Search box refined */
+  .search-input {
+    width: 340px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(90,70,54,0.30);
+    font-size: 14px;
+  }
+  
+  /* Divider reduced thickness */
+  .divider-line {
+    height: 1px;
+    width: 90%;
+    margin-top: 10px;
+  }
+  
+  /* Section titles more compact */
+  .card-title-section {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  /* Info box text spacing cleaned */
+  .info-box p {
+    margin-bottom: 6px;
+    font-size: 13.5px;
+  }
+  
+  /* Status badge improved */
+  .status-badge {
+    background: rgba(255,216,107,0.30);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+  
+  /* ---------------- TABLE CLEAN LOOK ---------------- */
+  
+  .history-table thead th {
+    background: transparent !important;  /* Removed brown fill */
+    font-size: 12px;
+    font-weight: 700;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(90,70,54,0.25);
+  }
+  
+  /* Glass row style — reduced height */
+  .history-table tbody tr {
+    background: rgba(255,255,255,0.50);
+    border-radius: 12px;
+  }
+  
+  .history-table tbody td {
+    font-size: 12.5px;
+    padding: 10px 6px;
+  }
+  
+  .history-table tbody tr:hover {
+    background: rgba(246,231,211,0.45);
+    transform: translateY(-2px);
+  }
+  
+  /* -------- Mobile Optimization -------- */
+  @media(max-width: 768px){
+    .tracking-wrapper {
+      padding: 25px 18px !important;
+    }
+    .search-input {
+      width: 100%;
+    }
+  }
+  </style>
+  
+
+{% endblock %}

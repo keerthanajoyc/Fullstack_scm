@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Create Shipment — SCMLite{% endblock %}
+{% block content %}
+
+<!-- Page Header -->
+
+
+<!-- Glass Form Container Only -->
+<div class="glass-container p-4 p-md-5 mx-auto fade-in-up"
+     style="max-width:950px; margin-bottom:40px;">
+     
+     <div class="text-center mt-3 mb-4 fade-in-up">
+      <h2 class="fw-bold" style="color:var(--scm-primary);">
+        Create Shipment
+      </h2>
+      <p style="color:var(--scm-secondary); font-size:.95rem;">
+        Fill in the shipment details to initiate dispatch
+      </p>
+    </div>
+
+  {% if flash %}
+    <div class="alert alert-info text-center fw-semibold rounded-3 fade-in-up">{{ flash }}</div>
+  {% endif %}
+
+  <form method="POST" class="row g-4">
+
+    <!-- Shipment ID -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">local_shipping</span> Shipment ID
+      </label>
+      <input name="shipment_id" class="form-control input-custom"
+             placeholder="e.g. S0001" value="{{ next_shipment_id }}" required>
+      <small class="text-muted d-block mt-1">Auto-generated: {{ next_shipment_id }} (edit to customize)</small>
+    </div>
+
+    <!-- Weight -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">scale</span> Weight (kg)
+      </label>
+      <input name="weight" type="number" step="0.01"
+             class="form-control input-custom"
+             placeholder="e.g. 42.5" required>
+    </div>
+
+    <!-- Sender Name -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">person</span> Sender Name
+      </label>
+      <input name="sender_name" class="form-control input-custom"
+             value="{{ user_name }}" {% if not is_admin %}readonly{% endif %} required>
+    </div>
+
+    <!-- Receiver Name -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">person_pin_circle</span> Receiver Name
+      </label>
+      <input name="receiver_name" class="form-control input-custom"
+             placeholder="Receiver Full Name" required>
+    </div>
+
+    <!-- Sender Email -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">mail</span> Sender Email
+      </label>
+      {% if is_admin %}
+      <input type="email" name="sender_email"
+             class="form-control input-custom"
+             placeholder="sender@example.com" required>
+      {% else %}
+      <input type="email" name="sender_email"
+             class="form-control input-custom"
+             value="{{ user_email }}" readonly required>
+      {% endif %}
+    </div>
+
+    <!-- Receiver Email -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">forward_to_inbox</span> Receiver Email
+      </label>
+      <input type="email" name="receiver_email"
+             class="form-control input-custom"
+             placeholder="receiver@example.com" required>
+    </div>
+
+    <!-- Initial Location -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">location_on</span> Initial Location
+      </label>
+      <input name="initial_location"
+             class="form-control input-custom"
+             placeholder="Warehouse / City" required>
+    </div>
+
+    <!-- Destination -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">flag</span> Destination
+      </label>
+      <input name="destination"
+             class="form-control input-custom"
+             placeholder="Delivery location" required>
+    </div>
+
+    {% if is_admin %}
+    <!-- Admin Editable Status -->
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 align-middle me-1">assignment_turned_in</span> Shipment Status
+      </label>
+      <select name="status" class="form-select input-custom">
+        <option value="Pending">Pending</option>
+        <option value="In Transit">In Transit</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+    </div>
+    {% endif %}
+
+    <!-- Submit -->
+    <div class="col-12 mt-3">
+      <button class="submit-btn w-100 py-3 rounded-3 fw-bold">
+        Submit Shipment
+      </button>
+    </div>
+
+  </form>
+</div>
+
+
+<style>
+/* Glass Container */
+.glass-container {
+  background: rgba(255,255,255,0.55);
+  border-radius: 18px;
+  border:1px solid rgba(90,70,54,0.20);
+  box-shadow:var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+/* Inputs */
+.input-custom {
+  padding: 14px;
+  background: rgba(255,255,255,0.85);
+  border:1px solid rgba(90,70,54,0.25);
+  border-radius: 10px;
+}
+.input-custom:focus {
+  border-color: var(--scm-primary);
+  box-shadow:0 0 0 3px rgba(90,70,54,0.25);
+}
+
+/* Submit */
+.submit-btn {
+  background:var(--scm-primary);
+  color:#a9dcff;
+  border:none;
+  transition:.25s ease;
+}
+.submit-btn:hover {
+  background:#99e5f8;
+  transform: translateY(-2px);
+}
+
+/* Fade Animation */
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(15px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.fade-in-up { animation: fadeSlide .45s ease-out; }
+</style>
+
+{% endblock %}

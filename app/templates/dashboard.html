@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SCMLite{% endblock %}
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+  <!-- Just Heading (No extra card) -->
+  <h2 class="fw-bold text-center mb-2" style="color:var(--scm-primary);">
+    Dashboard
+  </h2>
+  <p class="text-center mb-4" style="color:var(--scm-secondary);">
+    Real-time shipment visibility and activity updates
+  </p>
+
+  {% if is_admin %}
+  <!-- ADMIN KPI CARDS -->
+  <div class="row g-4 justify-content-center" style="max-width:1100px; margin:auto;">
+
+    <div class="col-md-4 col-10">
+      <div class="content-card text-center py-4 kpi-box">
+        <span class="material-icons fs-1" style="color:var(--scm-primary);">inventory_2</span>
+        <h6 class="mt-2" style="color:var(--scm-secondary);">Total Shipments</h6>
+        <h2 class="fw-bold" style="color:var(--scm-primary);">{{ shipment_count }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-10">
+      <div class="content-card text-center py-4 kpi-box">
+        <span class="material-icons fs-1" style="color:var(--scm-primary);">sensors</span>
+        <h6 class="mt-2" style="color:var(--scm-secondary);">Active Devices</h6>
+        <h2 class="fw-bold" style="color:var(--scm-primary);">{{ active_devices }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4 col-10">
+      <div class="content-card text-center py-4 kpi-box">
+        <span class="material-icons fs-1" style="color:var(--scm-primary);">check_circle</span>
+        <h6 class="mt-2" style="color:var(--scm-secondary);">Delivered Today</h6>
+        <h2 class="fw-bold" style="color:var(--scm-primary);">{{ deliveries_today }}</h2>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="content-card glass-table mt-5 p-4" style="max-width:1100px; margin:auto;">
+    <h5 class="fw-bold mb-3" style="color:var(--scm-primary);">Recent Shipment Activity</h5>
+
+    {% if recent_shipments %}
+    <ul class="activity-list">
+      {% for s in recent_shipments %}
+      <li>
+        <strong>{{ s.shipment_id }}</strong> — {{ s.status }} → {{ s.destination.title() }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No recent activity yet.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if not is_admin %}
+  <!-- USER KPI -->
+  <div class="row g-4 justify-content-center" style="max-width:900px; margin:auto;">
+
+    <div class="col-md-5 col-10">
+      <div class="content-card text-center py-4 kpi-box">
+        <span class="material-icons fs-1" style="color:var(--scm-primary);">inventory_2</span>
+        <h6 class="mt-2" style="color:var(--scm-secondary);">Your Shipments</h6>
+        <h2 class="fw-bold" style="color:var(--scm-primary);">{{ shipment_count }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-5 col-10">
+      <div class="content-card text-center py-4 kpi-box">
+        <span class="material-icons fs-1" style="color:var(--scm-primary);">check_circle</span>
+        <h6 class="mt-2" style="color:var(--scm-secondary);">Delivered</h6>
+        <h2 class="fw-bold" style="color:var(--scm-primary);">{{ deliveries_today }}</h2>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- USER SHIPMENTS -->
+  <div class="content-card glass-table mt-5 p-4" style="max-width:1100px; margin:auto;">
+    <h5 class="fw-bold mb-3" style="color:var(--scm-primary);">📦 Your Shipments</h5>
+
+    {% if my_shipments %}
+    <div class="table-responsive">
+      <table class="table align-middle table-hover">
+        <thead class="glass-header">
+          <tr><th>ID</th><th>Status</th><th>Destination</th><th>Last Updated</th></tr>
+        </thead>
+        <tbody>
+          {% for s in my_shipments %}
+          <tr>
+            <td><strong>{{ s.shipment_id }}</strong></td>
+            <td><span class="badge bg-info text-dark">{{ s.status }}</span></td>
+            <td>{{ s.destination.title() }}</td>
+            <td>{{ s.last_updated.strftime("%Y-%m-%d") if s.last_updated else "N/A" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-muted">You have no shipments yet.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+
+
+<!-- Styles -->
+<style>
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.activity-list li {
+  color: var(--scm-primary);
+  margin-bottom: 6px;
+}
+
+.glass-table {
+  background: rgba(255,255,255,0.55);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border:1px solid rgba(90,70,54,0.18);
+}
+
+.glass-header {
+  background: var(--scm-primary);
+  color: #fff;
+}
+
+.kpi-box {
+  transition: .25s ease;
+}
+.kpi-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 45px rgba(0,0,0,0.10)!important;
+}
+</style>
+
+{% endblock %}

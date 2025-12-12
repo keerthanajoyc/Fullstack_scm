@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Live Data Streams — SCMLite{% endblock %}
+{% block content %}
+
+<div class="w-100">
+
+  <!-- HEADER CARD -->
+  <div class="glass-card text-center mb-4">
+    <h2 class="fw-bold" style="color:var(--scm-primary);">📡 Live IoT Data Streams</h2>
+    <p style="color:var(--scm-secondary); font-size:.95rem; margin: 10px 0 0 0;">
+      Real-time monitoring of shipment sensor data from Kafka
+    </p>
+  </div>
+
+  <!-- SEARCH CARD -->
+  <div class="glass-card p-4 mb-4">
+    <h5 class="fw-bold mb-3" style="color:var(--scm-primary);">🔎 Search by Device ID</h5>
+    
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <input type="text" id="searchInput" class="form-control" placeholder="Enter Device ID..." 
+             style="flex: 1; min-width: 200px; border-radius: 12px; padding: 12px 16px; 
+             border: 1px solid rgba(30, 64, 175, 0.15); background: rgba(240, 249, 255, 0.5);">
+
+      <button class="btn btn-primary-custom" onclick="filterSearch()">Search</button>
+      <button class="btn btn-secondary-custom" onclick="resetSearch()">Reset</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle text-center table-hover" style="color:var(--scm-primary); margin-bottom: 0;">
+        <thead style="background: linear-gradient(135deg, var(--scm-primary), var(--scm-secondary)); color: #fff; font-weight: 700;">
+          <tr>
+            <th>Device ID</th>
+            <th>Battery %</th>
+            <th>Temp (°C)</th>
+            <th>Humidity %</th>
+            <th>Route</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody id="searchResults"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LIVE STREAMS CARD -->
+  <div class="glass-card p-4">
+    <h5 class="fw-bold mb-3" style="color:var(--scm-primary);">⚡ Latest 10 Live Streams</h5>
+
+    <div class="table-responsive">
+      <table class="table align-middle text-center table-hover" style="color:var(--scm-primary); margin-bottom: 0;">
+        <thead style="background: linear-gradient(135deg, var(--scm-primary), var(--scm-secondary)); color: #fff; font-weight: 700;">
+          <tr>
+            <th>Device ID</th>
+            <th>Battery %</th>
+            <th>Temp (°C)</th>
+            <th>Humidity %</th>
+            <th>Route</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .btn-primary-custom {
+    background: linear-gradient(135deg, var(--scm-primary), var(--scm-secondary));
+    color: #fff !important;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    transition: .28s ease-in-out;
+  }
+  
+  .btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+  }
+
+  .btn-secondary-custom {
+    background: rgba(255,255,255,0.95);
+    color: var(--scm-primary) !important;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: 2px solid var(--scm-primary);
+    transition: .28s ease-in-out;
+  }
+
+  .btn-secondary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+    background: var(--scm-primary);
+    color: #fff !important;
+  }
+
+  .table {
+    font-weight: 500;
+  }
+
+  .table tbody tr:hover {
+    background: rgba(30, 64, 175, 0.05);
+    transform: scale(1.01);
+  }
+
+  .table td {
+    padding: 14px 12px;
+  }
+</style>
+
+<script>
+  let fullStreamData = [];
+
+  async function loadData() {
+    try {
+      const res = await fetch("/api/streams/");
+      const json = await res.json();
+
+      fullStreamData = Array.isArray(json) ? json : [];
+
+      renderLatest(fullStreamData.slice(0, 10));
+
+      if (document.getElementById("searchInput").value.trim()) {
+        filterSearch();
+      }
+
+    } catch (error) {
+      console.error("API Error:", error);
+      document.getElementById("dataBody").innerHTML =
+        `<tr><td colspan="6" class="text-danger py-3">❌ Unable to load live stream</td></tr>`;
+    }
+  }
+
+  function renderLatest(rows) {
+    const body = document.getElementById("dataBody");
+
+    if (!rows.length) {
+      body.innerHTML =
+        `<tr><td colspan="6" class="text-muted py-3">⏳ Waiting for incoming stream data...</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(r => `
+      <tr>
+        <td><b>${r.Device_ID ?? "-"}</b></td>
+        <td>${r.Battery_Level ?? "-"}</td>
+        <td>${r.Temperature ?? "-"}</td>
+        <td>${r.Humidity ?? "-"}</td>
+        <td>${r.Route_From ?? "-"} → ${r.Route_To ?? "-"}</td>
+        <td>${r.Timestamp ?? "-"}</td>
+      </tr>
+    `).join("");
+  }
+
+  function filterSearch() {
+    const q = document.getElementById("searchInput").value.toLowerCase();
+    const out = document.getElementById("searchResults");
+
+    if (!q) {
+      out.innerHTML = "";
+      return;
+    }
+
+    const results = fullStreamData.filter(r =>
+      String(r.Device_ID).toLowerCase().includes(q)
+    );
+
+    if (!results.length) {
+      out.innerHTML =
+        `<tr><td colspan="6" class="text-muted py-2">❌ No matching Device ID found</td></tr>`;
+      return;
+    }
+
+    out.innerHTML = results.slice(0, 10).map(r => `
+      <tr>
+        <td><b>${r.Device_ID ?? "-"}</b></td>
+        <td>${r.Battery_Level ?? "-"}</td>
+        <td>${r.Temperature ?? "-"}</td>
+        <td>${r.Humidity ?? "-"}</td>
+        <td>${r.Route_From ?? "-"} → ${r.Route_To ?? "-"}</td>
+        <td>${r.Timestamp ?? "-"}</td>
+      </tr>
+    `).join("");
+  }
+
+  function resetSearch() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("searchResults").innerHTML = "";
+  }
+
+  document.addEventListener("DOMContentLoaded", loadData);
+  setInterval(loadData, 2000);
+</script>
+
+{% endblock %}

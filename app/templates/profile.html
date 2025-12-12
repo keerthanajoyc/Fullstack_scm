@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Profile — SCMLite{% endblock %}
+{% block content %}
+
+<!-- Profile Glass Card -->
+<div class="glass-container p-4 p-md-5 mx-auto fade-in-up"
+     style="max-width:750px; margin-top:40px; margin-bottom:40px;">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <span class="material-icons"
+          style="font-size:55px;color:var(--scm-primary);">
+      account_circle
+    </span>
+    <div>
+      <h4 class="fw-bold mb-0" style="color:var(--scm-primary);">
+        {{ user.name }}
+      </h4>
+      <small class="text-muted">{{ user.email }}</small>
+    </div>
+  </div>
+
+  {% if flash %}
+  <div class="alert alert-info text-center fw-semibold rounded-3 mb-3 fade-in-up">
+    {{ flash }}
+  </div>
+  {% endif %}
+
+  <form method="POST" class="row g-4">
+
+    <!-- Name -->
+    <div class="col-12">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 me-1 align-middle">badge</span>
+        Full Name
+      </label>
+      <input name="fullname" value="{{ user.name }}" class="form-control input-custom" required>
+    </div>
+
+    <!-- Email -->
+    <div class="col-12">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 me-1 align-middle">mail</span>
+        Email
+      </label>
+      <input value="{{ user.email }}" class="form-control input-custom" disabled>
+    </div>
+
+    <!-- Password -->
+    <div class="col-12">
+      <label class="form-label fw-semibold">
+        <span class="material-icons fs-6 me-1 align-middle">lock_reset</span>
+        New Password (optional)
+      </label>
+      <input name="new_password" type="password"
+             class="form-control input-custom"
+             placeholder="Enter only if changing password">
+    </div>
+
+    <!-- Submit -->
+    <div class="col-12 mt-2">
+      <button class="submit-btn w-100 py-3 fw-bold rounded-3">
+        Update Profile
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<style>
+.glass-container {
+  background: rgba(255,255,255,0.55);
+  border-radius: 18px;
+  border:1px solid rgba(90,70,54,0.20);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+}
+
+/* Inputs */
+.input-custom {
+  padding: 14px;
+  background: rgba(255,255,255,0.85);
+  border:1px solid rgba(90,70,54,0.25);
+  border-radius: 10px;
+}
+.input-custom:focus {
+  border-color: var(--scm-primary);
+  box-shadow:0 0 0 3px rgba(90,70,54,0.25);
+}
+
+/* Button */
+.submit-btn {
+  background: var(--scm-primary);
+  color: #fff;
+  transition: .25s ease;
+  border:none;
+}
+.submit-btn:hover {
+  background:#3f2f24;
+  transform: translateY(-2px);
+}
+
+/* Animation */
+.fade-in-up {
+  animation: fadeSlide .45s ease-out;
+}
+@keyframes fadeSlide {
+  from { opacity:0; transform:translateY(15px); }
+  to { opacity:1; transform:translateY(0); }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Home — SCMLite{% endblock %}
+{% block content %}
+
+<div class="home-wrapper">
+
+  <!-- Welcome Card -->
+  <div class="content-card text-center welcome-box">
+    <h2 class="fw-bold" style="color:var(--scm-primary);">
+      Welcome, {{ user }}
+    </h2>
+    <h5 class="fw-bold mt-2" style="color:var(--scm-primary);">
+      Smart Supply Chain Monitoring 
+    </h5>
+    <p class="mt-2" style="color:var(--scm-secondary); font-size:.95rem;">
+      Real-time tracking • Automated alerts • IoT powered logistics
+    </p>
+  </div>
+
+  <!-- Feature Cards -->
+  <div class="row justify-content-center g-4 mt-3 feature-cards">
+
+    <div class="col-md-5 col-10">
+      <a href="/create-shipment" class="text-decoration-none">
+        <div class="content-card text-center py-4">
+          <span class="material-icons fs-1" style="color:var(--scm-primary);">add_box</span>
+          <h5 class="fw-bold mt-2" style="color:var(--scm-primary);">Create Shipment</h5>
+          <p style="color:var(--scm-secondary);">Add and dispatch new orders</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-5 col-10">
+      <a href="/track_shipment" class="text-decoration-none">
+        <div class="content-card text-center py-4">
+          <span class="material-icons fs-1" style="color:var(--scm-primary);">travel_explore</span>
+          <h5 class="fw-bold mt-2" style="color:var(--scm-primary);">Track Shipment</h5>
+          <p style="color:var(--scm-secondary);">Monitor shipment status live</p>
+        </div>
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.home-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.welcome-box {
+  max-width: 900px;
+  margin: 0 auto 30px;
+}
+
+.content-card:hover {
+  transform: translateY(-4px);
+  transition: 0.25s;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.10)!important;
+}
+</style>
+
+{% endblock %}

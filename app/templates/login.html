@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | SCMLite</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+<style>
+  :root {
+    --scm-primary: #1e40af;
+    --scm-secondary: #0f766e;
+    --scm-accent-bg: #e0f2fe;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #e0f2fe 25%, #ffffff 80%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  /* GLASS CONTAINER */
+  .glass-container {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 24px;
+    border: 1px solid rgba(30, 64, 175, 0.1);
+    padding: 50px 40px;
+    box-shadow: 0 8px 28px rgba(30, 64, 175, 0.12);
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  /* HEADER */
+  .header-section {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header-section h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--scm-primary);
+    margin-bottom: 8px;
+  }
+
+  .header-section p {
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  /* FORM */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--scm-primary);
+    margin-bottom: 6px;
+  }
+
+  .form-control {
+    height: 48px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(30, 64, 175, 0.2);
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--scm-secondary);
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+  }
+
+  .password-wrapper {
+    position: relative;
+  }
+
+  .icon-toggle {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 20px;
+    transition: color 0.3s;
+  }
+
+  .icon-toggle:hover {
+    color: var(--scm-primary);
+  }
+
+  .remember-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    cursor: pointer;
+  }
+
+  .forgot-password {
+    color: var(--scm-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+  }
+
+  .forgot-password:hover {
+    color: var(--scm-primary);
+  }
+
+  /* SUBMIT BUTTON */
+  .btn-submit {
+    height: 48px;
+    background: linear-gradient(135deg, var(--scm-primary), var(--scm-secondary));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 28px rgba(30, 64, 175, 0.12);
+    margin-top: 8px;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(15, 118, 110, 0.25);
+  }
+
+  /* SIGNUP LINK */
+  .signup-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .signup-link a {
+    color: var(--scm-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s;
+  }
+
+  .signup-link a:hover {
+    color: var(--scm-primary);
+  }
+
+  /* FLASH MESSAGE */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    animation: slideDown 0.4s ease-out;
+  }
+
+  .alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .glass-container {
+      padding: 40px 25px;
+    }
+
+    .header-section h1 {
+      font-size: 1.8rem;
+    }
+
+    .login-form {
+      gap: 14px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="glass-container">
+  <div class="header-section">
+    <h1>Welcome Back</h1>
+    <p>Sign in to your SCMLite account</p>
+  </div>
+
+  {% if flash %}
+  <div class="alert alert-danger">{{ flash }}</div>
+  {% endif %}
+
+  <form method="POST" action="/login" class="login-form">
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <div class="password-wrapper">
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+        <span class="material-icons-round icon-toggle" onclick="togglePassword('password')">visibility</span>
+      </div>
+    </div>
+
+    <div class="remember-section">
+      <div class="checkbox-group">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember" style="margin: 0; font-weight: 500; color: #666;">Remember me</label>
+      </div>
+      <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+    </div>
+
+    <button type="submit" class="btn-submit">Sign In</button>
+  </form>
+
+  <div class="signup-link">
+    Don't have an account? <a href="/signup">Create Account</a>
+  </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+  const field = document.getElementById(fieldId);
+  const icon = event.target;
+  
+  if (field.type === 'password') {
+    field.type = 'text';
+    icon.textContent = 'visibility_off';
+  } else {
+    field.type = 'password';
+    icon.textContent = 'visibility';
+  }
+}
+</script>
+
+</body>
+</html>
